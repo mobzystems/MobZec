@@ -31,11 +31,13 @@
       this._splitContainer = new System.Windows.Forms.SplitContainer();
       this._treeView = new System.Windows.Forms.TreeView();
       this._listView = new System.Windows.Forms.ListView();
+      this._explicitColumn = new System.Windows.Forms.ColumnHeader();
       this._nameColumn = new System.Windows.Forms.ColumnHeader();
-      this._inheritedColumn = new System.Windows.Forms.ColumnHeader();
       this._typeColumn = new System.Windows.Forms.ColumnHeader();
-      this._rightColumn = new System.Windows.Forms.ColumnHeader();
+      this._rightsColumn = new System.Windows.Forms.ColumnHeader();
       this._topPanel = new System.Windows.Forms.Panel();
+      this._statusLabel = new System.Windows.Forms.Label();
+      this._cancelButton = new System.Windows.Forms.Button();
       this._openButton = new System.Windows.Forms.Button();
       ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).BeginInit();
       this._splitContainer.Panel1.SuspendLayout();
@@ -75,10 +77,10 @@
       // _listView
       // 
       this._listView.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this._explicitColumn,
             this._nameColumn,
-            this._inheritedColumn,
             this._typeColumn,
-            this._rightColumn});
+            this._rightsColumn});
       this._listView.Dock = System.Windows.Forms.DockStyle.Fill;
       this._listView.FullRowSelect = true;
       this._listView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -90,32 +92,59 @@
       this._listView.UseCompatibleStateImageBehavior = false;
       this._listView.View = System.Windows.Forms.View.Details;
       // 
+      // _explicitColumn
+      // 
+      this._explicitColumn.Text = "Explicit?";
+      this._explicitColumn.Width = 80;
+      // 
       // _nameColumn
       // 
-      this._nameColumn.Text = "Naam";
+      this._nameColumn.Text = "Name";
       this._nameColumn.Width = 200;
-      // 
-      // _inheritedColumn
-      // 
-      this._inheritedColumn.Text = "Expliciet";
-      this._inheritedColumn.Width = 80;
       // 
       // _typeColumn
       // 
-      this._typeColumn.Text = "Soort";
+      this._typeColumn.Text = "Access";
       // 
-      // _rightColumn
+      // _rightsColumn
       // 
-      this._rightColumn.Text = "Rechten";
+      this._rightsColumn.Text = "Rights";
+      this._rightsColumn.Width = 200;
       // 
       // _topPanel
       // 
+      this._topPanel.Controls.Add(this._statusLabel);
+      this._topPanel.Controls.Add(this._cancelButton);
       this._topPanel.Controls.Add(this._openButton);
       this._topPanel.Dock = System.Windows.Forms.DockStyle.Top;
       this._topPanel.Location = new System.Drawing.Point(0, 0);
       this._topPanel.Name = "_topPanel";
       this._topPanel.Size = new System.Drawing.Size(800, 32);
       this._topPanel.TabIndex = 1;
+      // 
+      // _statusLabel
+      // 
+      this._statusLabel.AutoEllipsis = true;
+      this._statusLabel.Dock = System.Windows.Forms.DockStyle.Fill;
+      this._statusLabel.Location = new System.Drawing.Point(154, 0);
+      this._statusLabel.Name = "_statusLabel";
+      this._statusLabel.Size = new System.Drawing.Size(646, 32);
+      this._statusLabel.TabIndex = 2;
+      this._statusLabel.Text = "...";
+      this._statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+      this._statusLabel.UseMnemonic = false;
+      // 
+      // _cancelButton
+      // 
+      this._cancelButton.Dock = System.Windows.Forms.DockStyle.Left;
+      this._cancelButton.Location = new System.Drawing.Point(79, 0);
+      this._cancelButton.Name = "_cancelButton";
+      this._cancelButton.Size = new System.Drawing.Size(75, 32);
+      this._cancelButton.TabIndex = 1;
+      this._cancelButton.Text = "Cancel";
+      this._cancelButton.UseVisualStyleBackColor = true;
+      this._cancelButton.Visible = false;
+      this._cancelButton.Click += new System.EventHandler(this._cancelButton_Click);
       // 
       // _openButton
       // 
@@ -153,10 +182,12 @@
         private TreeView _treeView;
         private ListView _listView;
         private ColumnHeader _nameColumn;
-        private ColumnHeader _inheritedColumn;
+        private ColumnHeader _explicitColumn;
         private Panel _topPanel;
         private Button _openButton;
     private ColumnHeader _typeColumn;
-    private ColumnHeader _rightColumn;
+    private ColumnHeader _rightsColumn;
+    private Label _statusLabel;
+    private Button _cancelButton;
   }
 }

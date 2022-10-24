@@ -6,6 +6,7 @@ namespace MobZec
   internal class AclItem
   {
     public string Name {  get; init; }
+    public string FullName { get; init; }
     // The relative path of the item. "" for the root item
     public string RelativePath { get; init; }
     public FileSystemSecurity Security { get; init; }
@@ -16,6 +17,7 @@ namespace MobZec
     public AclItem(string fullPath, string rootPath, FileSystemSecurity security)
     {
       Name = Path.GetFileName(fullPath);
+      FullName = fullPath;
       RelativePath = Path.GetRelativePath(rootPath, fullPath);
       Security = security;
       AccessRules = new();
