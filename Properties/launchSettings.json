@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "MobZec": {
+      "commandName": "Project",
+      "commandLineArgs": "..\\..\\.."
+    }
+  }
+}

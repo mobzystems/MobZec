@@ -1,8 +1,6 @@
 using MobZec.Properties;
 using System.Security.AccessControl;
 using System.Security.Principal;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
 
 namespace MobZec
 {
@@ -13,7 +11,8 @@ namespace MobZec
     private ImageList _imageList = new();
 
     private string? _rootPath;
-    private string? _lastOpenedPath;
+    private int _depthFromCommandLine = 0;
+    private string _lastOpenedPath;
     private bool _cancelled = false;
 
     public MobZecForm()
@@ -34,16 +33,35 @@ namespace MobZec
       if (Environment.GetCommandLineArgs().Length > 1)
       {
         _rootPath = Environment.GetCommandLineArgs()[1];
-        _lastOpenedPath = _rootPath;
-      } else
+        _lastOpenedPath = Path.GetFullPath(_rootPath);
+        if (Environment.GetCommandLineArgs().Length > 2)
+        {
+          try
+          {
+            _depthFromCommandLine = int.Parse(Environment.GetCommandLineArgs()[2]);
+          }
+          catch { }
+        }
+
+      }
+      else
       {
-        _lastOpenedPath = null;// Environment.GetFolderPath(Environment.SpecialFolder.MyComputer);
+        _lastOpenedPath = Environment.CurrentDirectory;
       }
 
-      _statusLabel.Text = "Open a directory to get started";
+      _statusLabel.Text = "Open a directory to get started. Shift-click to show direct children only.";
     }
 
-    private async Task StartLoadingTask(string root)
+    private async void MobZecForm_Load(object sender, EventArgs e)
+    {
+      if (_rootPath != null)
+      {
+        await LoadSecurityAsync(_rootPath, _depthFromCommandLine);
+        _depthFromCommandLine = 0;
+      }
+    }
+
+    private async Task LoadSecurityAsync(string root, int depth)
     {
       _splitContainer.Enabled = false;
       _splitContainer.UseWaitCursor = true;
@@ -74,7 +92,7 @@ namespace MobZec
         {
           a = await Task.Run(() =>
           {
-            return AclDirectory.FromPath(root, true, callback);
+            return AclDirectory.FromPath(root, depth, callback);
           });
         }
         catch (Exception ex)
@@ -94,12 +112,17 @@ namespace MobZec
           _topPanel.Update(); ;
 
           _treeView.BeginUpdate();
-          
+
           _treeView.Nodes.Clear();
 
-          var rootNode = _treeView.Nodes.Add(root);
+          var rootNode = _treeView.Nodes.Add(a.FullName);
           rootNode.ImageKey = "folder";
           rootNode.SelectedImageKey = "folder-open";
+          if (a.HasExplicitAccessRules)
+          {
+            rootNode.ImageKey = "exclamation";
+            rootNode.SelectedImageKey = "exclamation";
+          }
 
           rootNode.Tag = a;
           AddNodes(a, rootNode);
@@ -109,6 +132,8 @@ namespace MobZec
 
           rootNode.Expand();
           _treeView.SelectedNode = rootNode;
+
+          Text = $"{a.FullName} - MobZec";
         }
         else
         {
@@ -183,23 +208,27 @@ namespace MobZec
 
     private async void _openButton_Click(object sender, EventArgs e)
     {
-      using(var dlg = new FolderBrowserDialog())
+      // Press Shift to load a directory and its immediate children
+      int maxDepth = (Control.ModifierKeys & (Keys.Alt | Keys.Control | Keys.Shift)) == Keys.Shift ? 2 : 0;
+
+      using (var dlg = new FolderBrowserDialog())
       {
+        dlg.UseDescriptionForTitle = true;
+
+        if (maxDepth == 0)
+          dlg.Description = "Choose a folder to open";
+        else
+          dlg.Description = "Choose a folder to open NON-RECURSIVELY";
+
         dlg.SelectedPath = _lastOpenedPath;
 
         // dlg.Description = "Choose a folder to open";
         if (dlg.ShowDialog(this) == DialogResult.OK && dlg.SelectedPath != null)
         {
           _lastOpenedPath = dlg.SelectedPath;
-          await StartLoadingTask(dlg.SelectedPath);
+          await LoadSecurityAsync(dlg.SelectedPath, maxDepth);
         }
       }
-    }
-
-    private async void MobZecForm_Load(object sender, EventArgs e)
-    {
-      if (_rootPath != null)
-        await StartLoadingTask(_rootPath);
     }
 
     private void _cancelButton_Click(object sender, EventArgs e)

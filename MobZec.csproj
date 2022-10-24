@@ -6,6 +6,11 @@
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
     <ImplicitUsings>enable</ImplicitUsings>
+    <Title>MOBZystems Security Explorer</Title>
+    <Description>MOBZystems Security Explorer</Description>
+    <Company>MOBZystems</Company>
+    <Version>0.1.0</Version>
+    <Copyright>(c) MOBZystems, 2022</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

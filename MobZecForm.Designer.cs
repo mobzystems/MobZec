@@ -154,7 +154,6 @@
       this._openButton.Size = new System.Drawing.Size(79, 32);
       this._openButton.TabIndex = 0;
       this._openButton.Text = "Open...";
-      this._openButton.UseVisualStyleBackColor = true;
       this._openButton.Click += new System.EventHandler(this._openButton_Click);
       // 
       // MobZecForm

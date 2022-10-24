@@ -11,7 +11,6 @@ namespace MobZec
     public string RelativePath { get; init; }
     public FileSystemSecurity Security { get; init; }
     public List<FileSystemAccessRule> AccessRules { get; init; }
-
     public bool HasExplicitAccessRules { get; init; }
 
     public AclItem(string fullPath, string rootPath, FileSystemSecurity security)
@@ -41,10 +40,10 @@ namespace MobZec
     public List<AclDirectory> Directories { get; init; } = new();
     public List<AclFile> Files { get; init; } = new();
 
-    public AclDirectory(string fullPath, string rootPath, bool recursive, Func<string, bool> callback) :
+    public AclDirectory(string fullPath, string rootPath, int maxDepth, int currentDepth, Func<string, bool> callback) :
       base(fullPath, rootPath, new DirectoryInfo(fullPath).GetAccessControl())
     {
-      if (recursive)
+      if (maxDepth == 0 || currentDepth < maxDepth)
       {
         foreach (var name in Directory.GetDirectories(fullPath))
         {
@@ -52,7 +51,7 @@ namespace MobZec
             break;
           try
           {
-            Directories.Add(new AclDirectory(name, rootPath, recursive, callback));
+            Directories.Add(new AclDirectory(name, rootPath, maxDepth, currentDepth + 1, callback));
           }
           catch { 
             // Ignore
@@ -61,13 +60,21 @@ namespace MobZec
       }
     }
 
-    public static AclDirectory FromPath(string path, bool recursive, Func<string, bool> callback)
+    /// <summary>
+    /// Load secutiry from a path
+    /// </summary>
+    /// <param name="path">The (full or relative) 'root' path</param>
+    /// <param name="depth">0 = recursive, 1 = path only, 2+ = more levels of children</param>
+    /// <param name="callback">A function to call upon entering each directory. Can return true to cancel the operation</param>
+    /// <returns>The AclDirectory of the root path. Contains all other (files and) directories</returns>
+    /// <exception cref="DirectoryNotFoundException"></exception>
+    public static AclDirectory FromPath(string path, int depth, Func<string, bool> callback)
     {
       if (!Directory.Exists(path))
         throw new DirectoryNotFoundException($"Directory '{path}' does not exist");
 
       var rootPath = Path.GetFullPath(path);
-      var rootItem = new AclDirectory(rootPath, rootPath, recursive, callback);
+      var rootItem = new AclDirectory(rootPath, rootPath, depth, 1, callback);
       return rootItem;
     }
   }
