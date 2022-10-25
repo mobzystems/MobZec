@@ -1,4 +1,5 @@
 using MobZec.Properties;
+using System.Data;
 using System.Diagnostics;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -269,18 +270,9 @@ namespace MobZec
           var rules = dir.AccessRules;
           foreach (FileSystemAccessRule rule in rules)
           {
-            string account;
-            try
-            {
-              // This may fail if the account cannot be found (anymore)
-              account = new SecurityIdentifier(rule.IdentityReference.Value).Translate(typeof(NTAccount)).Value;
-            }
-            catch
-            {
-              account = rule.IdentityReference.Value;
-            }
-
+            string account = GetSidName(rule.IdentityReference.Value);
             var item = _listView.Items.Add(rule.IsInherited ? "No" : "Yes");
+            item.Tag = rule;
             item.SubItems.Add(account);
             item.SubItems.Add(rule.AccessControlType.ToString());
             item.SubItems.Add(rule.FileSystemRights.ToString());
@@ -293,6 +285,19 @@ namespace MobZec
       }
     }
 
+    private string GetSidName(string sid)
+    {
+      try
+      {
+        // This may fail if the account cannot be found (anymore)
+        return new SecurityIdentifier(sid).Translate(typeof(NTAccount)).Value;
+      }
+      catch
+      {
+        return sid;
+      }
+
+    }
     /// <summary>
     /// Allow the user to choose a folder to open and parse
     /// </summary>
@@ -338,6 +343,58 @@ namespace MobZec
         var path = ((AclDirectory)_treeView.SelectedNode.Tag).FullName;
         Process.Start("explorer.exe", $"/select,\"{path}\"");
       }
+    }
+
+    private async Task RunPowerShellScript(string commandLine, string title)
+    {
+      if (_listView.SelectedItems.Count == 0)
+        return;
+
+      var item = _listView.SelectedItems[0];
+      if (item == null)
+        return;
+
+      var rule = (FileSystemAccessRule)item.Tag!;
+
+      var pi = new ProcessStartInfo();
+      pi.FileName = "pwsh";
+      pi.ArgumentList.Add("-NoLogo");
+      pi.ArgumentList.Add("-Sta");
+      pi.ArgumentList.Add("-NoProfile");
+      pi.ArgumentList.Add("-NonInteractive");
+      pi.ArgumentList.Add("-ExecutionPolicy");
+      pi.ArgumentList.Add("Unrestricted");
+      pi.ArgumentList.Add("-Command ");
+      pi.ArgumentList.Add(
+        $"{commandLine} | Out-GridView -Title \"{title}\""
+        .Replace("#ID#", rule.IdentityReference.Value)
+        .Replace("#NAME#", GetSidName(rule.IdentityReference.Value))
+      );
+      pi.RedirectStandardOutput = true;
+      pi.UseShellExecute = false;
+      pi.CreateNoWindow = true;
+
+      var process = Process.Start(pi);
+      if (process != null)
+      {
+        await process.WaitForExitAsync();
+        var output = process.StandardOutput.ReadToEnd();
+        if (!string.IsNullOrWhiteSpace(output))
+        {
+          MessageBox.Show(this, output, "Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+      }
+
+    }
+
+    private async void _showDirectMembersMenuItem_Click(object sender, EventArgs e)
+    {
+      await RunPowerShellScript("Get-AdGroupMember -Identity \"#ID#\" | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name", "Direct members of group #NAME#");
+    }
+
+    private async void _showAllMembersMenuItem_Click(object sender, EventArgs e)
+    {
+      await RunPowerShellScript("Get-AdGroupMember -Identity \"#ID#\" -Recursive | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name", "All members of group #NAME#");
     }
   }
 }

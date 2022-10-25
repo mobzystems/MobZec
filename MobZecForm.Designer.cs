@@ -38,17 +38,21 @@
       this._nameColumn = new System.Windows.Forms.ColumnHeader();
       this._typeColumn = new System.Windows.Forms.ColumnHeader();
       this._rightsColumn = new System.Windows.Forms.ColumnHeader();
+      this._listViewContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+      this._showDirectMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this._topPanel = new System.Windows.Forms.Panel();
       this._statusLabel = new System.Windows.Forms.Label();
       this._cancelButton = new System.Windows.Forms.Button();
       this._openPanel = new System.Windows.Forms.Panel();
       this._depthListBox = new System.Windows.Forms.ComboBox();
       this._openButton = new System.Windows.Forms.Button();
+      this._showAllMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).BeginInit();
       this._splitContainer.Panel1.SuspendLayout();
       this._splitContainer.Panel2.SuspendLayout();
       this._splitContainer.SuspendLayout();
       this._treeViewContextMenu.SuspendLayout();
+      this._listViewContextMenu.SuspendLayout();
       this._topPanel.SuspendLayout();
       this._openPanel.SuspendLayout();
       this.SuspendLayout();
@@ -88,12 +92,12 @@
       this._treeViewContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._showInExplorerMenuItem});
       this._treeViewContextMenu.Name = "_treeViewContextMenu";
-      this._treeViewContextMenu.Size = new System.Drawing.Size(181, 48);
+      this._treeViewContextMenu.Size = new System.Drawing.Size(163, 26);
       // 
       // _showInExplorerMenuItem
       // 
       this._showInExplorerMenuItem.Name = "_showInExplorerMenuItem";
-      this._showInExplorerMenuItem.Size = new System.Drawing.Size(180, 22);
+      this._showInExplorerMenuItem.Size = new System.Drawing.Size(162, 22);
       this._showInExplorerMenuItem.Text = "Show in &Explorer";
       this._showInExplorerMenuItem.Click += new System.EventHandler(this._showInExplorerMenuItem_Click);
       // 
@@ -104,6 +108,7 @@
             this._nameColumn,
             this._typeColumn,
             this._rightsColumn});
+      this._listView.ContextMenuStrip = this._listViewContextMenu;
       this._listView.Dock = System.Windows.Forms.DockStyle.Fill;
       this._listView.FullRowSelect = true;
       this._listView.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.Nonclickable;
@@ -133,6 +138,21 @@
       // 
       this._rightsColumn.Text = "Rights";
       this._rightsColumn.Width = 200;
+      // 
+      // _listViewContextMenu
+      // 
+      this._listViewContextMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._showDirectMembersMenuItem,
+            this._showAllMembersMenuItem});
+      this._listViewContextMenu.Name = "_listViewContextMenu";
+      this._listViewContextMenu.Size = new System.Drawing.Size(190, 70);
+      // 
+      // _showDirectMembersMenuItem
+      // 
+      this._showDirectMembersMenuItem.Name = "_showDirectMembersMenuItem";
+      this._showDirectMembersMenuItem.Size = new System.Drawing.Size(189, 22);
+      this._showDirectMembersMenuItem.Text = "Show direct &members";
+      this._showDirectMembersMenuItem.Click += new System.EventHandler(this._showDirectMembersMenuItem_Click);
       // 
       // _topPanel
       // 
@@ -181,7 +201,7 @@
       // 
       // _depthListBox
       // 
-      this._depthListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+      this._depthListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
       this._depthListBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
       this._depthListBox.FormattingEnabled = true;
@@ -208,6 +228,13 @@
       this._openButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
       this._openButton.Click += new System.EventHandler(this._openButton_Click);
       // 
+      // _showAllMembersMenuItem
+      // 
+      this._showAllMembersMenuItem.Name = "_showAllMembersMenuItem";
+      this._showAllMembersMenuItem.Size = new System.Drawing.Size(189, 22);
+      this._showAllMembersMenuItem.Text = "Show &all members";
+      this._showAllMembersMenuItem.Click += new System.EventHandler(this._showAllMembersMenuItem_Click);
+      // 
       // MobZecForm
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -223,6 +250,7 @@
       ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).EndInit();
       this._splitContainer.ResumeLayout(false);
       this._treeViewContextMenu.ResumeLayout(false);
+      this._listViewContextMenu.ResumeLayout(false);
       this._topPanel.ResumeLayout(false);
       this._openPanel.ResumeLayout(false);
       this.ResumeLayout(false);
@@ -246,5 +274,8 @@
     private ComboBox _depthListBox;
     private ContextMenuStrip _treeViewContextMenu;
     private ToolStripMenuItem _showInExplorerMenuItem;
-  }
+        private ContextMenuStrip _listViewContextMenu;
+        private ToolStripMenuItem _showDirectMembersMenuItem;
+        private ToolStripMenuItem _showAllMembersMenuItem;
+    }
 }
