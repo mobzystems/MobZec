@@ -9,9 +9,14 @@
     <Title>MOBZystems Security Explorer</Title>
     <Description>MOBZystems Security Explorer</Description>
     <Company>MOBZystems</Company>
-    <Version>0.1.0</Version>
+    <Version>0.1.1</Version>
     <Copyright>(c) MOBZystems, 2022</Copyright>
+    <ApplicationIcon>images\MobZec.ico</ApplicationIcon>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="images\MobZec.ico" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.IO.FileSystem.AccessControl" Version="5.0.0" />

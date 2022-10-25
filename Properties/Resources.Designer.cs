@@ -83,9 +83,49 @@ namespace MobZec.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap file_o {
+            get {
+                object obj = ResourceManager.GetObject("file-o", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap flag_o {
+            get {
+                object obj = ResourceManager.GetObject("flag-o", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap flag_o_red {
+            get {
+                object obj = ResourceManager.GetObject("flag-o-red", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap folder {
             get {
                 object obj = ResourceManager.GetObject("folder", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap folder_o {
+            get {
+                object obj = ResourceManager.GetObject("folder-o", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -97,6 +137,26 @@ namespace MobZec.Properties {
             get {
                 object obj = ResourceManager.GetObject("folder-open", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap folder_open_o {
+            get {
+                object obj = ResourceManager.GetObject("folder-open-o", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Icon similar to (Icon).
+        /// </summary>
+        internal static System.Drawing.Icon MobZec {
+            get {
+                object obj = ResourceManager.GetObject("MobZec", resourceCulture);
+                return ((System.Drawing.Icon)(obj));
             }
         }
     }
