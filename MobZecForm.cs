@@ -82,17 +82,49 @@ namespace MobZec
         _statusLabel.Text = $"Loading '{path}'...";
         _cancelButton.Visible = true;
 
+        // Keep a (case insensitive!) tab on which directory was added to the tree where
+        var nodeDict = new Dictionary<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
+
+        // Add the root path as the only node
+        _treeView.Nodes.Clear();
+        var firstNode = _treeView.Nodes.Add(Path.GetFullPath(path));
+        nodeDict.Add(firstNode.Text, firstNode);
+        firstNode.Expand();
+
+        _listView.Items.Clear();
+
         // We only update the status label every so many ms, to prevent it eating CPU
         var lastUpdateTime = DateTime.Now.AddHours(-1);
         // This method is called on every folder. Return true to cancel
         var callback = (string name) =>
         {
+          // Skip paths we already added
+          if (!nodeDict.ContainsKey(name))
+          {
+            // Find the parent:
+            var parentPath = Path.GetDirectoryName(name);
+            if (nodeDict.TryGetValue(parentPath!, out TreeNode? node))
+            {
+              // We found the parent: add the node
+              Invoke(() => {
+                var newNode = node.Nodes.Add(Path.GetFileName(name));
+                nodeDict.Add(name, newNode);
+                // Update the first level? Then show this node
+                if (node == firstNode)
+                  newNode.EnsureVisible();
+              });
+            }
+          }
+
           var time = DateTime.Now;
           if (time.Subtract(lastUpdateTime).TotalMilliseconds > UpdateMs)
           {
             // Update the status label USING INVOKE()
             Invoke(() => _statusLabel.Text = name);
             lastUpdateTime = time;
+            _treeView.EndUpdate();
+            _treeView.Update();
+            _treeView.BeginUpdate();
           }
           return _cancelled;
         };
@@ -102,6 +134,8 @@ namespace MobZec
 
         try
         {
+          // Block updates to the tree
+          _treeView.BeginUpdate();
           a = await Task.Run(() => AclDirectory.FromPath(path, depth, callback));
         }
         catch (Exception ex)
@@ -109,6 +143,10 @@ namespace MobZec
           // We failed somehow - no result
           MessageBox.Show(this, ex.Message, $"Error loading '{path}'", MessageBoxButtons.OK, MessageBoxIcon.Error);
           a = null;
+        }
+        finally
+        {
+          _treeView.EndUpdate();
         }
 
         // Swap Open and Cancel again, disable Open while we're displaying
