@@ -1,6 +1,5 @@
 using MobZec.Properties;
 using System.Configuration;
-using System.Data;
 using System.Diagnostics;
 using System.Security.AccessControl;
 using System.Security.Principal;
@@ -131,13 +130,13 @@ namespace MobZec
     private async void RuleCommandItem_Click(object? sender, EventArgs e)
     {
       var rule = (DynamicCommand)(((ToolStripItem)sender!).Tag!);
-      await RunPowerShellScriptOnRule(rule.Command);
+      await RunCommandOnRule(rule.Command);
     }
 
     private async void DirCommandItem_Click(object? sender, EventArgs e)
     {
       var rule = (DynamicCommand)(((ToolStripItem)sender!).Tag!);
-      await RunPowerShellScriptOnDirectory(rule.Command);
+      await RunCommandOnDirectory(rule.Command);
     }
 
     /// <summary>
@@ -352,6 +351,9 @@ namespace MobZec
       }
     }
 
+    /// <summary>
+    /// Convert an SID ("S-xxx-xxx") to an account name. Leaves the SID on error
+    /// </summary>
     private string GetSidName(string sid)
     {
       try
@@ -403,6 +405,9 @@ namespace MobZec
         _treeView.SelectedNode = e.Node;
     }
 
+    /// <summary>
+    /// Default menu item for directories. Hidden if there are custom commands in AppSettings
+    /// </summary>
     private void _showInExplorerMenuItem_Click(object sender, EventArgs e)
     {
       if (_treeView.SelectedNode != null)
@@ -412,7 +417,10 @@ namespace MobZec
       }
     }
 
-    private async Task RunPowerShellScriptOnRule(string commandLine)
+    /// <summary>
+    /// Start a command on a rule
+    /// </summary>
+    private async Task RunCommandOnRule(string commandLine)
     {
       if (_listView.SelectedItems.Count == 0)
         return;
@@ -441,7 +449,10 @@ namespace MobZec
       await StartProcess(commandToRun, workingDirectory);
     }
 
-    private async Task RunPowerShellScriptOnDirectory(string commandLine)
+    /// <summary>
+    /// Start a command on a directory
+    /// </summary>
+    private async Task RunCommandOnDirectory(string commandLine)
     {
       if (_treeView.SelectedNode == null)
         return;
@@ -452,6 +463,13 @@ namespace MobZec
       await StartProcess(commandToRun, dir.FullName);
     }
 
+
+    /// <summary>
+    /// Start a process based on a command line. The "scheme" of the command line
+    /// can be pwsh: powershell: cmd: or shell: or it can be absent.
+    /// </summary>
+    /// <param name="commandToRun"></param>
+    /// <param name="workingDirectory"></param>
     private async Task StartProcess(string commandToRun, string workingDirectory)
     {
       var pi = new ProcessStartInfo();
@@ -541,14 +559,20 @@ namespace MobZec
       }
     }
 
+    /// <summary>
+    /// Hidden menu item
+    /// </summary>
     private async void _showDirectMembersMenuItem_Click(object sender, EventArgs e)
     {
-      await RunPowerShellScriptOnRule("Get-AdGroupMember -Identity \"#ID#\" | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name | Out-GrdiView -Title 'Direct members of group #NAME#'");
+      await RunCommandOnRule("Get-AdGroupMember -Identity \"#ID#\" | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name | Out-GrdiView -Title 'Direct members of group #NAME#'");
     }
 
+    /// <summary>
+    /// Hidden menu item
+    /// </summary>
     private async void _showAllMembersMenuItem_Click(object sender, EventArgs e)
     {
-      await RunPowerShellScriptOnRule("Get-AdGroupMember -Identity \"#ID#\" -Recursive | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name| Out-GrdiView -Title 'All members of group #NAME#'");
+      await RunCommandOnRule("Get-AdGroupMember -Identity \"#ID#\" -Recursive | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name| Out-GrdiView -Title 'All members of group #NAME#'");
     }
   }
 }
