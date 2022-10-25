@@ -22,12 +22,14 @@ namespace MobZec
     private const string ICON_WARNING = nameof(Resources.flag_o_red);
     private const string ICON_ERROR = nameof(Resources.exclamation);
 
+    private string _titleBase = $"MobZec Security Explorer v{Application.ProductVersion}";
+
     public MobZecForm()
     {
       InitializeComponent();
 
       Icon = Resources.MobZec;
-      Text = "MobZec Security Explorer";
+      Text = _titleBase;
 
       _imageList.ColorDepth = ColorDepth.Depth32Bit;
       _imageList.ImageSize = new Size(24, 24);
@@ -189,7 +191,7 @@ namespace MobZec
           _treeView.EndUpdate();
 
           // Update the window title
-          Text = $"{a.FullName} - MobZec Security Explorer";
+          Text = $"{a.FullName} - {_titleBase}";
         }
         else
         {
