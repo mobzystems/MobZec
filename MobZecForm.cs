@@ -11,7 +11,6 @@ namespace MobZec
     private ImageList _imageList = new();
 
     private string? _rootPath;
-    private int _depthFromCommandLine = 0;
     private string _lastOpenedPath;
     private bool _cancelled = false;
 
@@ -38,25 +37,6 @@ namespace MobZec
       _treeView.ImageList = _imageList;
       _listView.SmallImageList = _imageList;
 
-      if (Environment.GetCommandLineArgs().Length > 1)
-      {
-        _rootPath = Environment.GetCommandLineArgs()[1];
-        _lastOpenedPath = Path.GetFullPath(_rootPath);
-        if (Environment.GetCommandLineArgs().Length > 2)
-        {
-          try
-          {
-            _depthFromCommandLine = int.Parse(Environment.GetCommandLineArgs()[2]);
-          }
-          catch { }
-        }
-
-      }
-      else
-      {
-        _lastOpenedPath = Environment.CurrentDirectory;
-      }
-
       _statusLabel.Text = "Open a directory to get started. Shift-click to show direct children only.";
     }
 
@@ -65,10 +45,22 @@ namespace MobZec
     /// </summary>
     private async void MobZecForm_Load(object sender, EventArgs e)
     {
-      if (_rootPath != null)
+      // [0] is the name of the executable, [1] is a folder to open and [2] is depth
+      if (Environment.GetCommandLineArgs().Length > 1)
       {
-        await LoadSecurityAsync(_rootPath, _depthFromCommandLine);
-        _depthFromCommandLine = 0;
+        _rootPath = Environment.GetCommandLineArgs()[1];
+
+        int depth = 0;
+        if (Environment.GetCommandLineArgs().Length > 2)
+          int.TryParse(Environment.GetCommandLineArgs()[2], out depth);
+
+        await LoadSecurityAsync(_rootPath, depth);
+
+        _lastOpenedPath = Path.GetFullPath(_rootPath);
+      }
+      else
+      {
+        _lastOpenedPath = Environment.CurrentDirectory;
       }
     }
 
