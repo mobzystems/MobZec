@@ -1,4 +1,5 @@
 using MobZec.Properties;
+using System.Diagnostics;
 using System.Security.AccessControl;
 using System.Security.Principal;
 
@@ -25,6 +26,7 @@ namespace MobZec
       InitializeComponent();
 
       Icon = Resources.MobZec;
+      Text = "MobZec Security Explorer";
 
       _imageList.ColorDepth = ColorDepth.Depth32Bit;
       _imageList.ImageSize = new Size(24, 24);
@@ -36,8 +38,14 @@ namespace MobZec
 
       _treeView.ImageList = _imageList;
       _listView.SmallImageList = _imageList;
+      _openButton.ImageList = _imageList;
+      _openButton.ImageKey = ICON_FOLDER_OPEN;
 
-      _statusLabel.Text = "Open a directory to get started. Shift-click to show direct children only.";
+      _depthListBox.SelectedIndex = 0;
+
+      _statusLabel.Text = "Open a directory to get started.";
+
+      _lastOpenedPath = Environment.CurrentDirectory;
     }
 
     /// <summary>
@@ -57,10 +65,9 @@ namespace MobZec
         await LoadSecurityAsync(_rootPath, depth);
 
         _lastOpenedPath = Path.GetFullPath(_rootPath);
-      }
-      else
-      {
-        _lastOpenedPath = Environment.CurrentDirectory;
+        // Update the combo box if we chose an applicable depth
+        if (depth < _depthListBox.Items.Count)
+          _depthListBox.SelectedIndex = depth;
       }
     }
 
@@ -72,13 +79,13 @@ namespace MobZec
     private async Task LoadSecurityAsync(string path, int depth)
     {
       _splitContainer.Enabled = false;
-      _splitContainer.UseWaitCursor = true;
+      _splitContainer.UseWaitCursor = true; // Doesn't work?
 
       try
       {
         // Hide the Open button, show the Cancel button
         _cancelled = false;
-        _openButton.Visible = false;
+        _openPanel.Visible = false;
         _statusLabel.Text = $"Loading '{path}'...";
         _cancelButton.Visible = true;
 
@@ -103,15 +110,19 @@ namespace MobZec
           {
             // Find the parent:
             var parentPath = Path.GetDirectoryName(name);
-            if (nodeDict.TryGetValue(parentPath!, out TreeNode? node))
+            // Update only first level nodes to show progress
+            if (nodeDict.TryGetValue(parentPath!, out TreeNode? node) && node == firstNode)
             {
               // We found the parent: add the node
-              Invoke(() => {
+              Invoke(() =>
+              {
                 var newNode = node.Nodes.Add(Path.GetFileName(name));
                 nodeDict.Add(name, newNode);
-                // Update the first level? Then show this node
-                if (node == firstNode)
-                  newNode.EnsureVisible();
+                // Show this node
+                newNode.EnsureVisible();
+                _treeView.EndUpdate();
+                _treeView.Update();
+                _treeView.BeginUpdate();
               });
             }
           }
@@ -120,11 +131,12 @@ namespace MobZec
           if (time.Subtract(lastUpdateTime).TotalMilliseconds > UpdateMs)
           {
             // Update the status label USING INVOKE()
-            Invoke(() => _statusLabel.Text = name);
+            Invoke(() =>
+            {
+              _statusLabel.Text = name;
+            });
+
             lastUpdateTime = time;
-            _treeView.EndUpdate();
-            _treeView.Update();
-            _treeView.BeginUpdate();
           }
           return _cancelled;
         };
@@ -150,8 +162,8 @@ namespace MobZec
         }
 
         // Swap Open and Cancel again, disable Open while we're displaying
-        _openButton.Enabled = false;
-        _openButton.Visible = true;
+        _openPanel.Enabled = false;
+        _openPanel.Visible = true;
         _cancelButton.Visible = false;
 
         if (a != null)
@@ -181,7 +193,7 @@ namespace MobZec
           _treeView.EndUpdate();
 
           // Update the window title
-          Text = $"{a.FullName} - MobZec";
+          Text = $"{a.FullName} - MobZec Security Explorer";
         }
         else
         {
@@ -189,7 +201,7 @@ namespace MobZec
         }
 
         // Re-enable Open button
-        _openButton.Enabled = true;
+        _openPanel.Enabled = true;
       }
       finally
       {
@@ -270,17 +282,13 @@ namespace MobZec
     private async void _openButton_Click(object sender, EventArgs e)
     {
       // Press Shift to load a directory and its immediate children
-      int maxDepth = (Control.ModifierKeys & (Keys.Alt | Keys.Control | Keys.Shift)) == Keys.Shift ? 2 : 0;
+      // int maxDepth = (Control.ModifierKeys & (Keys.Alt | Keys.Control | Keys.Shift)) == Keys.Shift ? 2 : 0;
+      int maxDepth = _depthListBox.SelectedIndex;
 
       using (var dlg = new FolderBrowserDialog())
       {
         dlg.UseDescriptionForTitle = true;
-
-        if (maxDepth == 0)
-          dlg.Description = "Choose a folder to open";
-        else
-          dlg.Description = "Choose a folder to open NON-RECURSIVELY";
-
+        dlg.Description = "Choose a folder to open";
         dlg.SelectedPath = _lastOpenedPath;
 
         if (dlg.ShowDialog(this) == DialogResult.OK && dlg.SelectedPath != null)
@@ -297,6 +305,22 @@ namespace MobZec
     private void _cancelButton_Click(object sender, EventArgs e)
     {
       _cancelled = true;
+    }
+
+    private void _treeView_NodeMouseClick(object sender, TreeNodeMouseClickEventArgs e)
+    {
+      // Also select items using the right mouse button
+      if (e.Node != null && e.Button != MouseButtons.Left)
+        _treeView.SelectedNode = e.Node;
+    }
+
+    private void _showInExplorerMenuItem_Click(object sender, EventArgs e)
+    {
+      if (_treeView.SelectedNode != null)
+      {
+        var path = ((AclDirectory)_treeView.SelectedNode.Tag).FullName;
+        Process.Start("explorer.exe", $"/select,\"{path}\"");
+      }
     }
   }
 }
