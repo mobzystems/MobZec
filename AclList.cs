@@ -3,22 +3,32 @@ using System.Security.Principal;
 
 namespace MobZec
 {
+  /// <summary>
+  /// Base class for security information for a file or directory
+  /// </summary>
   internal class AclItem
   {
-    public string Name {  get; init; }
+    // Base name of this item (file.ext)
+    public string Name { get; init; }
+    // Full name of this item (drive:\path\file.ext)
     public string FullName { get; init; }
-    // The relative path of the item. "" for the root item
+    // The relative path of the item. "." for the root item
     public string RelativePath { get; init; }
+    // The secutiry for this item
     public FileSystemSecurity Security { get; init; }
+    // Type-safe list of access rules for this item
     public List<FileSystemAccessRule> AccessRules { get; init; }
+    // Are any of the access rules explicit, i.e. non-inherited?
     public bool HasExplicitAccessRules { get; init; }
 
-    public AclItem(string fullPath, string rootPath, FileSystemSecurity security)
+    protected AclItem(string fullPath, string rootPath, FileSystemSecurity security)
     {
       Name = Path.GetFileName(fullPath);
       FullName = fullPath;
       RelativePath = Path.GetRelativePath(rootPath, fullPath);
       Security = security;
+
+      // Make the typeless collection of access rules type safe in AccessRules:
       AccessRules = new();
       var rules = Security.GetAccessRules(true, true, typeof(SecurityIdentifier));
       foreach (FileSystemAccessRule rule in rules)
@@ -27,20 +37,26 @@ namespace MobZec
     }
   }
 
+  /// <summary>
+  /// Security info for a file
+  /// </summary>
   internal class AclFile : AclItem
   {
-    public AclFile(string fullPath, string rootPath, FileSystemSecurity security) :
+    protected AclFile(string fullPath, string rootPath, FileSystemSecurity security) :
       base(fullPath, rootPath, new FileInfo(fullPath).GetAccessControl())
     {
     }
   }
 
+  /// <summary>
+  /// Security info for a directory and subdirectories
+  /// </summary>
   internal class AclDirectory : AclItem
   {
     public List<AclDirectory> Directories { get; init; } = new();
     public List<AclFile> Files { get; init; } = new();
 
-    public AclDirectory(string fullPath, string rootPath, int maxDepth, int currentDepth, Func<string, bool> callback) :
+    protected AclDirectory(string fullPath, string rootPath, int maxDepth, int currentDepth, Func<string, bool> callback) :
       base(fullPath, rootPath, new DirectoryInfo(fullPath).GetAccessControl())
     {
       if (maxDepth == 0 || currentDepth < maxDepth)
@@ -53,7 +69,8 @@ namespace MobZec
           {
             Directories.Add(new AclDirectory(name, rootPath, maxDepth, currentDepth + 1, callback));
           }
-          catch { 
+          catch
+          {
             // Ignore
           }
         }
@@ -61,7 +78,7 @@ namespace MobZec
     }
 
     /// <summary>
-    /// Load secutiry from a path
+    /// Load security information from a path
     /// </summary>
     /// <param name="path">The (full or relative) 'root' path</param>
     /// <param name="depth">0 = recursive, 1 = path only, 2+ = more levels of children</param>
