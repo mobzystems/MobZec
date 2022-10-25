@@ -20,6 +20,7 @@ namespace MobZec
 
     private const string ICON_FILE = nameof(Resources.file_o);
     private const string ICON_WARNING = nameof(Resources.flag_o_red);
+    private const string ICON_ERROR = nameof(Resources.exclamation);
 
     public MobZecForm()
     {
@@ -35,6 +36,7 @@ namespace MobZec
       _imageList.Images.Add(ICON_FOLDER, Resources.folder_o);
       _imageList.Images.Add(ICON_FOLDER_OPEN, Resources.folder_open_o);
       _imageList.Images.Add(ICON_WARNING, Resources.flag_o_red);
+      _imageList.Images.Add(ICON_ERROR, Resources.exclamation);
 
       _treeView.ImageList = _imageList;
       _listView.SmallImageList = _imageList;
@@ -177,13 +179,7 @@ namespace MobZec
 
           // Add the root node with its full path
           var rootNode = _treeView.Nodes.Add(a.FullName);
-          rootNode.ImageKey = ICON_FOLDER;
-          rootNode.SelectedImageKey = ICON_FOLDER_OPEN;
-          if (a.HasExplicitAccessRules)
-          {
-            rootNode.ImageKey = ICON_WARNING;
-            rootNode.SelectedImageKey = ICON_WARNING;
-          }
+          ColorNode(rootNode, a);
 
           rootNode.Tag = a;
           AddNodes(a, rootNode);
@@ -197,7 +193,7 @@ namespace MobZec
         }
         else
         {
-          _statusLabel.Text = $"Failed to load '{path}";
+          _statusLabel.Text = $"Failed to load '{path}'";
         }
 
         // Re-enable Open button
@@ -222,20 +218,36 @@ namespace MobZec
       {
         var child = node.Nodes.Add(d.Name);
         child.Tag = d;
-        child.ImageKey = ICON_FOLDER;
-        child.SelectedImageKey = ICON_FOLDER_OPEN;
+        ColorNode(child, d);
 
         if (d.HasExplicitAccessRules)
         {
           child.EnsureVisible();
-          child.ImageKey = ICON_WARNING;
-          child.SelectedImageKey = ICON_WARNING;
           shouldExpand = true;
         }
         shouldExpand |= AddNodes(d, child);
       }
 
       return shouldExpand;
+    }
+
+    private void ColorNode(TreeNode node, AclDirectory dir)
+    {
+      if (dir.Exception != null)
+      {
+        node.ImageKey = ICON_ERROR;
+        node.SelectedImageKey = ICON_ERROR;
+      }
+      else if (dir.HasExplicitAccessRules)
+      {
+        node.ImageKey = ICON_WARNING;
+        node.SelectedImageKey = ICON_WARNING;
+      }
+      else
+      {
+        node.ImageKey = ICON_FOLDER;
+        node.SelectedImageKey = ICON_FOLDER_OPEN;
+      }
     }
 
     /// <summary>
@@ -250,28 +262,31 @@ namespace MobZec
         var dir = (AclDirectory)e.Node.Tag;
         _statusLabel.Text = $"{dir.FullName}";
 
-        var rules = dir.AccessRules;
-        foreach (FileSystemAccessRule rule in rules)
+        if (dir.AccessRules != null)
         {
-          string account;
-          try
+          var rules = dir.AccessRules;
+          foreach (FileSystemAccessRule rule in rules)
           {
-            // This may fail if the account cannot be found (anymore)
-            account = new SecurityIdentifier(rule.IdentityReference.Value).Translate(typeof(NTAccount)).Value;
-          }
-          catch
-          {
-            account = rule.IdentityReference.Value;
-          }
+            string account;
+            try
+            {
+              // This may fail if the account cannot be found (anymore)
+              account = new SecurityIdentifier(rule.IdentityReference.Value).Translate(typeof(NTAccount)).Value;
+            }
+            catch
+            {
+              account = rule.IdentityReference.Value;
+            }
 
-          var item = _listView.Items.Add(rule.IsInherited ? "No" : "Yes");
-          item.SubItems.Add(account);
-          item.SubItems.Add(rule.AccessControlType.ToString());
-          item.SubItems.Add(rule.FileSystemRights.ToString());
-          if (rule.IsInherited)
-            item.ImageKey = ICON_FILE;
-          else
-            item.ImageKey = ICON_WARNING;
+            var item = _listView.Items.Add(rule.IsInherited ? "No" : "Yes");
+            item.SubItems.Add(account);
+            item.SubItems.Add(rule.AccessControlType.ToString());
+            item.SubItems.Add(rule.FileSystemRights.ToString());
+            if (rule.IsInherited)
+              item.ImageKey = ICON_FILE;
+            else
+              item.ImageKey = ICON_WARNING;
+          }
         }
       }
     }
