@@ -40,13 +40,13 @@
       this._rightsColumn = new System.Windows.Forms.ColumnHeader();
       this._listViewContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
       this._showDirectMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+      this._showAllMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this._topPanel = new System.Windows.Forms.Panel();
       this._statusLabel = new System.Windows.Forms.Label();
       this._cancelButton = new System.Windows.Forms.Button();
       this._openPanel = new System.Windows.Forms.Panel();
       this._depthListBox = new System.Windows.Forms.ComboBox();
       this._openButton = new System.Windows.Forms.Button();
-      this._showAllMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).BeginInit();
       this._splitContainer.Panel1.SuspendLayout();
       this._splitContainer.Panel2.SuspendLayout();
@@ -145,14 +145,23 @@
             this._showDirectMembersMenuItem,
             this._showAllMembersMenuItem});
       this._listViewContextMenu.Name = "_listViewContextMenu";
-      this._listViewContextMenu.Size = new System.Drawing.Size(190, 70);
+      this._listViewContextMenu.Size = new System.Drawing.Size(190, 48);
       // 
       // _showDirectMembersMenuItem
       // 
       this._showDirectMembersMenuItem.Name = "_showDirectMembersMenuItem";
       this._showDirectMembersMenuItem.Size = new System.Drawing.Size(189, 22);
       this._showDirectMembersMenuItem.Text = "Show direct &members";
+      this._showDirectMembersMenuItem.Visible = false;
       this._showDirectMembersMenuItem.Click += new System.EventHandler(this._showDirectMembersMenuItem_Click);
+      // 
+      // _showAllMembersMenuItem
+      // 
+      this._showAllMembersMenuItem.Name = "_showAllMembersMenuItem";
+      this._showAllMembersMenuItem.Size = new System.Drawing.Size(189, 22);
+      this._showAllMembersMenuItem.Text = "Show &all members";
+      this._showAllMembersMenuItem.Visible = false;
+      this._showAllMembersMenuItem.Click += new System.EventHandler(this._showAllMembersMenuItem_Click);
       // 
       // _topPanel
       // 
@@ -227,13 +236,6 @@
       this._openButton.Text = "Open...";
       this._openButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
       this._openButton.Click += new System.EventHandler(this._openButton_Click);
-      // 
-      // _showAllMembersMenuItem
-      // 
-      this._showAllMembersMenuItem.Name = "_showAllMembersMenuItem";
-      this._showAllMembersMenuItem.Size = new System.Drawing.Size(189, 22);
-      this._showAllMembersMenuItem.Text = "Show &all members";
-      this._showAllMembersMenuItem.Click += new System.EventHandler(this._showAllMembersMenuItem_Click);
       // 
       // MobZecForm
       // 

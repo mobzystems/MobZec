@@ -1,4 +1,5 @@
 using MobZec.Properties;
+using System.Configuration;
 using System.Data;
 using System.Diagnostics;
 using System.Security.AccessControl;
@@ -24,6 +25,21 @@ namespace MobZec
     private const string ICON_ERROR = nameof(Resources.exclamation);
 
     private string _titleBase = $"MobZec Security Explorer v{Application.ProductVersion}";
+
+    /// <summary>
+    /// A (PowerShell) command to run on a rule using the context menu
+    /// </summary>
+    private class RuleCommand
+    {
+      public string Menu { get; init; }
+      public string Command { get; init; }
+
+      public RuleCommand(string menu, string command)
+      {
+        Menu = menu;
+        Command = command;
+      }
+    }
 
     public MobZecForm()
     {
@@ -51,6 +67,26 @@ namespace MobZec
       _statusLabel.Text = "Open a directory to get started.";
 
       _lastOpenedPath = Environment.CurrentDirectory;
+
+      // Set up the context menu for the rules in the list view:
+      int ruleItemsAdded = 0;
+
+      foreach (var key in ConfigurationManager.AppSettings.AllKeys)
+      {
+        if (key!.StartsWith("rule:"))
+        {
+          var menu = key!.Substring(5);
+          var command = ConfigurationManager.AppSettings[key!]!;
+          var item = _listViewContextMenu.Items.Add(menu);
+          item.Tag = new RuleCommand(menu, command);
+          item.Click += RuleCommandItem_Click;
+          ruleItemsAdded++;
+        }
+      }
+
+      // No rule items? No menu!
+      if (ruleItemsAdded == 0)
+        _listView.ContextMenuStrip = null;
     }
 
     /// <summary>
@@ -74,6 +110,12 @@ namespace MobZec
         if (depth < _depthListBox.Items.Count)
           _depthListBox.SelectedIndex = depth;
       }
+    }
+
+    private async void RuleCommandItem_Click(object? sender, EventArgs e)
+    {
+      var rule = (RuleCommand)(((ToolStripItem)sender!).Tag!);
+      await RunPowerShellScript(rule.Command);
     }
 
     /// <summary>
@@ -234,6 +276,9 @@ namespace MobZec
       return shouldExpand;
     }
 
+    /// <summary>
+    /// Set node properties based on AclDirectory
+    /// </summary>
     private void ColorNode(TreeNode node, AclDirectory dir)
     {
       if (dir.Exception != null)
@@ -345,7 +390,7 @@ namespace MobZec
       }
     }
 
-    private async Task RunPowerShellScript(string commandLine, string title)
+    private async Task RunPowerShellScript(string commandLine)
     {
       if (_listView.SelectedItems.Count == 0)
         return;
@@ -366,9 +411,9 @@ namespace MobZec
       pi.ArgumentList.Add("Unrestricted");
       pi.ArgumentList.Add("-Command ");
       pi.ArgumentList.Add(
-        $"{commandLine} | Out-GridView -Title \"{title}\""
-        .Replace("#ID#", rule.IdentityReference.Value)
-        .Replace("#NAME#", GetSidName(rule.IdentityReference.Value))
+        commandLine // $"{commandLine} | Out-GridView -Title \"{title}\""
+          .Replace("#ID#", rule.IdentityReference.Value)
+          .Replace("#NAME#", GetSidName(rule.IdentityReference.Value))
       );
       pi.RedirectStandardOutput = true;
       pi.UseShellExecute = false;
@@ -384,17 +429,16 @@ namespace MobZec
           MessageBox.Show(this, output, "Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
         }
       }
-
     }
 
     private async void _showDirectMembersMenuItem_Click(object sender, EventArgs e)
     {
-      await RunPowerShellScript("Get-AdGroupMember -Identity \"#ID#\" | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name", "Direct members of group #NAME#");
+      await RunPowerShellScript("Get-AdGroupMember -Identity \"#ID#\" | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name | Out-GrdiView -Title 'Direct members of group #NAME#'");
     }
 
     private async void _showAllMembersMenuItem_Click(object sender, EventArgs e)
     {
-      await RunPowerShellScript("Get-AdGroupMember -Identity \"#ID#\" -Recursive | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name", "All members of group #NAME#");
+      await RunPowerShellScript("Get-AdGroupMember -Identity \"#ID#\" -Recursive | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name| Out-GrdiView -Title 'All members of group #NAME#'");
     }
   }
 }
