@@ -29,12 +29,12 @@ namespace MobZec
     /// <summary>
     /// A (PowerShell) command to run on a rule using the context menu
     /// </summary>
-    private class RuleCommand
+    private class DynamicCommand
     {
       public string Menu { get; init; }
       public string Command { get; init; }
 
-      public RuleCommand(string menu, string command)
+      public DynamicCommand(string menu, string command)
       {
         Menu = menu;
         Command = command;
@@ -68,8 +68,10 @@ namespace MobZec
 
       _lastOpenedPath = Environment.CurrentDirectory;
 
-      // Set up the context menu for the rules in the list view:
+      // Set up the context menu for the directories in the tree view and
+      // the rules in the list view:
       int ruleItemsAdded = 0;
+      int dirItemsAdded = 0;
 
       foreach (var key in ConfigurationManager.AppSettings.AllKeys)
       {
@@ -78,15 +80,29 @@ namespace MobZec
           var menu = key!.Substring(5);
           var command = ConfigurationManager.AppSettings[key!]!;
           var item = _listViewContextMenu.Items.Add(menu);
-          item.Tag = new RuleCommand(menu, command);
+          item.Tag = new DynamicCommand(menu, command);
           item.Click += RuleCommandItem_Click;
           ruleItemsAdded++;
         }
+        else if (key!.StartsWith("dir:"))
+        {
+          var menu = key!.Substring(4);
+          var command = ConfigurationManager.AppSettings[key!]!;
+          var item = _treeViewContextMenu.Items.Add(menu);
+          item.Tag = new DynamicCommand(menu, command);
+          item.Click += DirCommandItem_Click;
+          dirItemsAdded++;
+        }
       }
-
       // No rule items? No menu!
       if (ruleItemsAdded == 0)
         _listView.ContextMenuStrip = null;
+
+      // Hide our own menu if we have custom commands
+      if (dirItemsAdded > 0)
+      {
+        _showInExplorerMenuItem.Visible = false;
+      }
     }
 
     /// <summary>
@@ -114,8 +130,14 @@ namespace MobZec
 
     private async void RuleCommandItem_Click(object? sender, EventArgs e)
     {
-      var rule = (RuleCommand)(((ToolStripItem)sender!).Tag!);
-      await RunPowerShellScript(rule.Command);
+      var rule = (DynamicCommand)(((ToolStripItem)sender!).Tag!);
+      await RunPowerShellScriptOnRule(rule.Command);
+    }
+
+    private async void DirCommandItem_Click(object? sender, EventArgs e)
+    {
+      var rule = (DynamicCommand)(((ToolStripItem)sender!).Tag!);
+      await RunPowerShellScriptOnDirectory(rule.Command);
     }
 
     /// <summary>
@@ -390,7 +412,7 @@ namespace MobZec
       }
     }
 
-    private async Task RunPowerShellScript(string commandLine)
+    private async Task RunPowerShellScriptOnRule(string commandLine)
     {
       if (_listView.SelectedItems.Count == 0)
         return;
@@ -400,45 +422,133 @@ namespace MobZec
         return;
 
       var rule = (FileSystemAccessRule)item.Tag!;
+      var commandToRun = commandLine
+       .Replace("#ID#", rule.IdentityReference.Value)
+       .Replace("#NAME#", GetSidName(rule.IdentityReference.Value));
 
+      string workingDirectory;
+
+      if (_treeView.SelectedNode != null)
+      {
+        var dir = (AclDirectory)(_treeView.SelectedNode.Tag!);
+        workingDirectory = dir.FullName;
+      }
+      else
+      {
+        workingDirectory = Environment.CurrentDirectory;
+      }
+
+      await StartProcess(commandToRun, workingDirectory);
+    }
+
+    private async Task RunPowerShellScriptOnDirectory(string commandLine)
+    {
+      if (_treeView.SelectedNode == null)
+        return;
+
+      var dir = (AclDirectory)(_treeView.SelectedNode.Tag!);
+      string commandToRun = commandLine.Replace("#PATH#", dir.FullName);
+
+      await StartProcess(commandToRun, dir.FullName);
+    }
+
+    private async Task StartProcess(string commandToRun, string workingDirectory)
+    {
       var pi = new ProcessStartInfo();
-      pi.FileName = "pwsh";
-      pi.ArgumentList.Add("-NoLogo");
-      pi.ArgumentList.Add("-Sta");
-      pi.ArgumentList.Add("-NoProfile");
-      pi.ArgumentList.Add("-NonInteractive");
-      pi.ArgumentList.Add("-ExecutionPolicy");
-      pi.ArgumentList.Add("Unrestricted");
-      pi.ArgumentList.Add("-Command ");
-      pi.ArgumentList.Add(
-        commandLine // $"{commandLine} | Out-GridView -Title \"{title}\""
-          .Replace("#ID#", rule.IdentityReference.Value)
-          .Replace("#NAME#", GetSidName(rule.IdentityReference.Value))
-      );
-      pi.RedirectStandardOutput = true;
-      pi.UseShellExecute = false;
-      pi.CreateNoWindow = true;
+
+      if (commandToRun.StartsWith("powershell:"))
+      {
+        pi.FileName = "powershell.exe";
+        pi.ArgumentList.Add("-NoLogo");
+        pi.ArgumentList.Add("-Sta");
+        pi.ArgumentList.Add("-NoProfile");
+        pi.ArgumentList.Add("-NonInteractive");
+        pi.ArgumentList.Add("-ExecutionPolicy");
+        pi.ArgumentList.Add("Unrestricted");
+        pi.ArgumentList.Add("-Command ");
+        pi.ArgumentList.Add(commandToRun.Substring(11));
+
+        pi.RedirectStandardOutput = true;
+        pi.UseShellExecute = false;
+        pi.CreateNoWindow = true;
+      }
+      else if (commandToRun.StartsWith("pwsh:"))
+      {
+        pi.FileName = "pwsh.exe";
+        pi.ArgumentList.Add("-NoLogo");
+        pi.ArgumentList.Add("-Sta");
+        pi.ArgumentList.Add("-NoProfile");
+        pi.ArgumentList.Add("-NonInteractive");
+        pi.ArgumentList.Add("-ExecutionPolicy");
+        pi.ArgumentList.Add("Unrestricted");
+        pi.ArgumentList.Add("-Command ");
+        pi.ArgumentList.Add(commandToRun.Substring(5));
+
+        pi.RedirectStandardOutput = true;
+        pi.UseShellExecute = false;
+        pi.CreateNoWindow = true;
+      }
+      else if (commandToRun.StartsWith("cmd:"))
+      {
+        pi.FileName = "cmd.exe";
+        pi.ArgumentList.Add("/c");
+        pi.ArgumentList.Add(commandToRun.Substring(4));
+
+        pi.RedirectStandardOutput = true;
+        pi.UseShellExecute = false;
+        pi.CreateNoWindow = true;
+      }
+      else if (commandToRun.StartsWith("shell:"))
+      {
+        pi.FileName = commandToRun.Substring(6);
+
+        pi.RedirectStandardOutput = false;
+        pi.UseShellExecute = true;
+        pi.CreateNoWindow = false;
+      }
+      else
+      {
+        var parts = commandToRun.Split(new char[] { ' ' }, 2, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+        {
+          pi.FileName = commandToRun;
+        }
+        else
+        {
+          pi.FileName = parts[0];
+          pi.Arguments = parts[1];
+        }
+
+        pi.RedirectStandardOutput = false;
+        pi.UseShellExecute = false;
+        pi.CreateNoWindow = false;
+      }
+
+      pi.WorkingDirectory = workingDirectory;
 
       var process = Process.Start(pi);
       if (process != null)
       {
         await process.WaitForExitAsync();
-        var output = process.StandardOutput.ReadToEnd();
-        if (!string.IsNullOrWhiteSpace(output))
+        if (pi.RedirectStandardOutput)
         {
-          MessageBox.Show(this, output, "Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+          var output = process.StandardOutput.ReadToEnd();
+          if (!string.IsNullOrWhiteSpace(output))
+          {
+            MessageBox.Show(this, output, "Result", MessageBoxButtons.OK, MessageBoxIcon.Information);
+          }
         }
       }
     }
 
     private async void _showDirectMembersMenuItem_Click(object sender, EventArgs e)
     {
-      await RunPowerShellScript("Get-AdGroupMember -Identity \"#ID#\" | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name | Out-GrdiView -Title 'Direct members of group #NAME#'");
+      await RunPowerShellScriptOnRule("Get-AdGroupMember -Identity \"#ID#\" | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name | Out-GrdiView -Title 'Direct members of group #NAME#'");
     }
 
     private async void _showAllMembersMenuItem_Click(object sender, EventArgs e)
     {
-      await RunPowerShellScript("Get-AdGroupMember -Identity \"#ID#\" -Recursive | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name| Out-GrdiView -Title 'All members of group #NAME#'");
+      await RunPowerShellScriptOnRule("Get-AdGroupMember -Identity \"#ID#\" -Recursive | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name| Out-GrdiView -Title 'All members of group #NAME#'");
     }
   }
 }
