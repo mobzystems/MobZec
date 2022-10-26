@@ -1,4 +1,4 @@
-# MobZec Security Explorer
+# MOBZec Security Explorer
 
 Analyze a folder structure to determine where security has explicitly been set.
 

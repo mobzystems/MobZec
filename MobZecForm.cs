@@ -23,7 +23,7 @@ namespace MobZec
     private const string ICON_WARNING = nameof(Resources.flag_o_red);
     private const string ICON_ERROR = nameof(Resources.exclamation);
 
-    private string _titleBase = $"MobZec Security Explorer v{Application.ProductVersion}";
+    private string _titleBase = $"MOBZec Security Explorer v{Application.ProductVersion}";
 
     /// <summary>
     /// A (PowerShell) command to run on a rule using the context menu
