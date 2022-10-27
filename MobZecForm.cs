@@ -163,6 +163,7 @@ namespace MobZec
         // Add the root path as the only node
         _treeView.Nodes.Clear();
         var firstNode = _treeView.Nodes.Add(Path.GetFullPath(path));
+        firstNode.ImageKey = ICON_FOLDER;
         nodeDict.Add(firstNode.Text, firstNode);
         firstNode.Expand();
 
@@ -185,6 +186,7 @@ namespace MobZec
               Invoke(() =>
               {
                 var newNode = node.Nodes.Add(Path.GetFileName(name));
+                newNode.ImageKey = ICON_FOLDER;
                 nodeDict.Add(name, newNode);
                 // Show this node
                 newNode.EnsureVisible();
