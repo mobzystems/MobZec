@@ -102,6 +102,10 @@ namespace MobZec
       {
         _showInExplorerMenuItem.Visible = false;
       }
+
+      // Hide the loading panel. Keeping it visible at design time
+      // works better
+      _loadingPanel.Visible = false;
     }
 
     /// <summary>

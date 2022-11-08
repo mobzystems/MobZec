@@ -42,9 +42,10 @@
       this._showDirectMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this._showAllMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this._topPanel = new System.Windows.Forms.Panel();
+      this._topStatusStrip = new System.Windows.Forms.StatusStrip();
+      this._statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
       this._loadingPanel = new System.Windows.Forms.ToolStrip();
       this._cancelButton = new System.Windows.Forms.ToolStripButton();
-      this._statusLabel = new System.Windows.Forms.Label();
       this._openPanel = new System.Windows.Forms.ToolStrip();
       this._openButton = new System.Windows.Forms.ToolStripButton();
       this._depthListBox = new System.Windows.Forms.ToolStripComboBox();
@@ -56,6 +57,7 @@
       this._treeViewContextMenu.SuspendLayout();
       this._listViewContextMenu.SuspendLayout();
       this._topPanel.SuspendLayout();
+      this._topStatusStrip.SuspendLayout();
       this._loadingPanel.SuspendLayout();
       this._openPanel.SuspendLayout();
       this.SuspendLayout();
@@ -168,14 +170,35 @@
       // 
       // _topPanel
       // 
+      this._topPanel.Controls.Add(this._topStatusStrip);
       this._topPanel.Controls.Add(this._loadingPanel);
-      this._topPanel.Controls.Add(this._statusLabel);
       this._topPanel.Controls.Add(this._openPanel);
       this._topPanel.Dock = System.Windows.Forms.DockStyle.Top;
       this._topPanel.Location = new System.Drawing.Point(0, 0);
       this._topPanel.Name = "_topPanel";
+      this._topPanel.Padding = new System.Windows.Forms.Padding(5, 0, 0, 0);
       this._topPanel.Size = new System.Drawing.Size(800, 32);
       this._topPanel.TabIndex = 1;
+      // 
+      // _topStatusStrip
+      // 
+      this._topStatusStrip.Dock = System.Windows.Forms.DockStyle.Fill;
+      this._topStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._statusLabel});
+      this._topStatusStrip.Location = new System.Drawing.Point(457, 0);
+      this._topStatusStrip.Name = "_topStatusStrip";
+      this._topStatusStrip.Size = new System.Drawing.Size(343, 32);
+      this._topStatusStrip.SizingGrip = false;
+      this._topStatusStrip.TabIndex = 8;
+      this._topStatusStrip.Text = "statusStrip1";
+      // 
+      // _statusLabel
+      // 
+      this._statusLabel.Name = "_statusLabel";
+      this._statusLabel.Size = new System.Drawing.Size(328, 27);
+      this._statusLabel.Spring = true;
+      this._statusLabel.Text = "...";
+      this._statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       // 
       // _loadingPanel
       // 
@@ -185,12 +208,11 @@
       this._loadingPanel.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._cancelButton});
       this._loadingPanel.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-      this._loadingPanel.Location = new System.Drawing.Point(308, 0);
+      this._loadingPanel.Location = new System.Drawing.Point(383, 0);
       this._loadingPanel.Name = "_loadingPanel";
       this._loadingPanel.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-      this._loadingPanel.Size = new System.Drawing.Size(105, 32);
+      this._loadingPanel.Size = new System.Drawing.Size(74, 32);
       this._loadingPanel.TabIndex = 7;
-      this._loadingPanel.Visible = false;
       // 
       // _cancelButton
       // 
@@ -202,20 +224,6 @@
       this._cancelButton.ToolTipText = "Cancel the current operation";
       this._cancelButton.Click += new System.EventHandler(this._cancelButton_Click);
       // 
-      // _statusLabel
-      // 
-      this._statusLabel.AutoEllipsis = true;
-      this._statusLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this._statusLabel.Location = new System.Drawing.Point(308, 0);
-      this._statusLabel.Margin = new System.Windows.Forms.Padding(3);
-      this._statusLabel.Name = "_statusLabel";
-      this._statusLabel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 5);
-      this._statusLabel.Size = new System.Drawing.Size(492, 32);
-      this._statusLabel.TabIndex = 2;
-      this._statusLabel.Text = "...";
-      this._statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-      this._statusLabel.UseMnemonic = false;
-      // 
       // _openPanel
       // 
       this._openPanel.Dock = System.Windows.Forms.DockStyle.Left;
@@ -226,11 +234,10 @@
             this._depthListBox,
             this._updateAvailableButton});
       this._openPanel.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-      this._openPanel.Location = new System.Drawing.Point(0, 0);
+      this._openPanel.Location = new System.Drawing.Point(5, 0);
       this._openPanel.Name = "_openPanel";
-      this._openPanel.Padding = new System.Windows.Forms.Padding(5, 0, 1, 0);
       this._openPanel.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-      this._openPanel.Size = new System.Drawing.Size(308, 32);
+      this._openPanel.Size = new System.Drawing.Size(378, 32);
       this._openPanel.TabIndex = 6;
       this._openPanel.Text = "toolStrip1";
       // 
@@ -284,6 +291,8 @@
       this._listViewContextMenu.ResumeLayout(false);
       this._topPanel.ResumeLayout(false);
       this._topPanel.PerformLayout();
+      this._topStatusStrip.ResumeLayout(false);
+      this._topStatusStrip.PerformLayout();
       this._loadingPanel.ResumeLayout(false);
       this._loadingPanel.PerformLayout();
       this._openPanel.ResumeLayout(false);
@@ -302,7 +311,6 @@
     private Panel _topPanel;
     private ColumnHeader _typeColumn;
     private ColumnHeader _rightsColumn;
-    private Label _statusLabel;
     private ContextMenuStrip _treeViewContextMenu;
     private ToolStripMenuItem _showInExplorerMenuItem;
         private ContextMenuStrip _listViewContextMenu;
@@ -314,5 +322,7 @@
         private ToolStripDropDownButton _updateAvailableButton;
         private ToolStrip _loadingPanel;
         private ToolStripButton _cancelButton;
-    }
+    private StatusStrip _topStatusStrip;
+    private ToolStripStatusLabel _statusLabel;
+  }
 }
