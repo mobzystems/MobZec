@@ -264,7 +264,7 @@
       // 
       // _updateAvailableButton
       // 
-      this._updateAvailableButton.Image = global::MobZec.Properties.Resources.exclamation;
+      this._updateAvailableButton.Image = global::MobZec.Properties.Resources.info_circle;
       this._updateAvailableButton.ImageTransparentColor = System.Drawing.Color.Magenta;
       this._updateAvailableButton.Name = "_updateAvailableButton";
       this._updateAvailableButton.ShowDropDownArrow = false;
