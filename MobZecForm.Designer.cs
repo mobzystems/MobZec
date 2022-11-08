@@ -42,11 +42,13 @@
       this._showDirectMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this._showAllMembersMenuItem = new System.Windows.Forms.ToolStripMenuItem();
       this._topPanel = new System.Windows.Forms.Panel();
+      this._loadingPanel = new System.Windows.Forms.ToolStrip();
+      this._cancelButton = new System.Windows.Forms.ToolStripButton();
       this._statusLabel = new System.Windows.Forms.Label();
-      this._cancelButton = new System.Windows.Forms.Button();
-      this._openPanel = new System.Windows.Forms.Panel();
-      this._depthListBox = new System.Windows.Forms.ComboBox();
-      this._openButton = new System.Windows.Forms.Button();
+      this._openPanel = new System.Windows.Forms.ToolStrip();
+      this._openButton = new System.Windows.Forms.ToolStripButton();
+      this._depthListBox = new System.Windows.Forms.ToolStripComboBox();
+      this._updateAvailableButton = new System.Windows.Forms.ToolStripDropDownButton();
       ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).BeginInit();
       this._splitContainer.Panel1.SuspendLayout();
       this._splitContainer.Panel2.SuspendLayout();
@@ -54,6 +56,7 @@
       this._treeViewContextMenu.SuspendLayout();
       this._listViewContextMenu.SuspendLayout();
       this._topPanel.SuspendLayout();
+      this._loadingPanel.SuspendLayout();
       this._openPanel.SuspendLayout();
       this.SuspendLayout();
       // 
@@ -165,8 +168,8 @@
       // 
       // _topPanel
       // 
+      this._topPanel.Controls.Add(this._loadingPanel);
       this._topPanel.Controls.Add(this._statusLabel);
-      this._topPanel.Controls.Add(this._cancelButton);
       this._topPanel.Controls.Add(this._openPanel);
       this._topPanel.Dock = System.Windows.Forms.DockStyle.Top;
       this._topPanel.Location = new System.Drawing.Point(0, 0);
@@ -174,68 +177,94 @@
       this._topPanel.Size = new System.Drawing.Size(800, 32);
       this._topPanel.TabIndex = 1;
       // 
+      // _loadingPanel
+      // 
+      this._loadingPanel.Dock = System.Windows.Forms.DockStyle.Left;
+      this._loadingPanel.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+      this._loadingPanel.ImageScalingSize = new System.Drawing.Size(24, 24);
+      this._loadingPanel.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._cancelButton});
+      this._loadingPanel.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
+      this._loadingPanel.Location = new System.Drawing.Point(308, 0);
+      this._loadingPanel.Name = "_loadingPanel";
+      this._loadingPanel.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+      this._loadingPanel.Size = new System.Drawing.Size(105, 32);
+      this._loadingPanel.TabIndex = 7;
+      this._loadingPanel.Visible = false;
+      // 
+      // _cancelButton
+      // 
+      this._cancelButton.Image = global::MobZec.Properties.Resources.cancel;
+      this._cancelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this._cancelButton.Name = "_cancelButton";
+      this._cancelButton.Size = new System.Drawing.Size(71, 29);
+      this._cancelButton.Text = "Cancel";
+      this._cancelButton.ToolTipText = "Cancel the current operation";
+      this._cancelButton.Click += new System.EventHandler(this._cancelButton_Click);
+      // 
       // _statusLabel
       // 
       this._statusLabel.AutoEllipsis = true;
       this._statusLabel.Dock = System.Windows.Forms.DockStyle.Fill;
-      this._statusLabel.Location = new System.Drawing.Point(408, 0);
+      this._statusLabel.Location = new System.Drawing.Point(308, 0);
+      this._statusLabel.Margin = new System.Windows.Forms.Padding(3);
       this._statusLabel.Name = "_statusLabel";
-      this._statusLabel.Size = new System.Drawing.Size(392, 32);
+      this._statusLabel.Padding = new System.Windows.Forms.Padding(0, 5, 0, 5);
+      this._statusLabel.Size = new System.Drawing.Size(492, 32);
       this._statusLabel.TabIndex = 2;
       this._statusLabel.Text = "...";
       this._statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
       this._statusLabel.UseMnemonic = false;
       // 
-      // _cancelButton
-      // 
-      this._cancelButton.Dock = System.Windows.Forms.DockStyle.Left;
-      this._cancelButton.Location = new System.Drawing.Point(333, 0);
-      this._cancelButton.Name = "_cancelButton";
-      this._cancelButton.Size = new System.Drawing.Size(75, 32);
-      this._cancelButton.TabIndex = 1;
-      this._cancelButton.Text = "Cancel";
-      this._cancelButton.UseVisualStyleBackColor = true;
-      this._cancelButton.Visible = false;
-      this._cancelButton.Click += new System.EventHandler(this._cancelButton_Click);
-      // 
       // _openPanel
       // 
-      this._openPanel.Controls.Add(this._depthListBox);
-      this._openPanel.Controls.Add(this._openButton);
       this._openPanel.Dock = System.Windows.Forms.DockStyle.Left;
+      this._openPanel.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+      this._openPanel.ImageScalingSize = new System.Drawing.Size(24, 24);
+      this._openPanel.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this._openButton,
+            this._depthListBox,
+            this._updateAvailableButton});
+      this._openPanel.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
       this._openPanel.Location = new System.Drawing.Point(0, 0);
       this._openPanel.Name = "_openPanel";
-      this._openPanel.Size = new System.Drawing.Size(333, 32);
-      this._openPanel.TabIndex = 3;
+      this._openPanel.Padding = new System.Windows.Forms.Padding(5, 0, 1, 0);
+      this._openPanel.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
+      this._openPanel.Size = new System.Drawing.Size(308, 32);
+      this._openPanel.TabIndex = 6;
+      this._openPanel.Text = "toolStrip1";
+      // 
+      // _openButton
+      // 
+      this._openButton.Image = global::MobZec.Properties.Resources.folder_open_o;
+      this._openButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this._openButton.Name = "_openButton";
+      this._openButton.Size = new System.Drawing.Size(98, 29);
+      this._openButton.Text = "Open folder";
+      this._openButton.Click += new System.EventHandler(this._openButton_Click);
       // 
       // _depthListBox
       // 
-      this._depthListBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
       this._depthListBox.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-      this._depthListBox.FormattingEnabled = true;
-      this._depthListBox.ItemHeight = 15;
       this._depthListBox.Items.AddRange(new object[] {
             "Load all subdirectories",
             "Load top directory only",
             "Top directory and subdirectories",
             "Top directory and 2 subdirectories",
             "Top directory and 3 subdirectories"});
-      this._depthListBox.Location = new System.Drawing.Point(110, 4);
       this._depthListBox.Name = "_depthListBox";
-      this._depthListBox.Size = new System.Drawing.Size(217, 23);
-      this._depthListBox.TabIndex = 2;
+      this._depthListBox.Size = new System.Drawing.Size(200, 32);
       // 
-      // _openButton
+      // _updateAvailableButton
       // 
-      this._openButton.Dock = System.Windows.Forms.DockStyle.Left;
-      this._openButton.Location = new System.Drawing.Point(0, 0);
-      this._openButton.Name = "_openButton";
-      this._openButton.Size = new System.Drawing.Size(104, 32);
-      this._openButton.TabIndex = 0;
-      this._openButton.Text = "Open...";
-      this._openButton.TextImageRelation = System.Windows.Forms.TextImageRelation.ImageBeforeText;
-      this._openButton.Click += new System.EventHandler(this._openButton_Click);
+      this._updateAvailableButton.Image = global::MobZec.Properties.Resources.exclamation;
+      this._updateAvailableButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+      this._updateAvailableButton.Name = "_updateAvailableButton";
+      this._updateAvailableButton.ShowDropDownArrow = false;
+      this._updateAvailableButton.Size = new System.Drawing.Size(44, 29);
+      this._updateAvailableButton.Text = "...";
+      this._updateAvailableButton.Visible = false;
+      this._updateAvailableButton.Click += new System.EventHandler(this._updateAvailableButton_Click);
       // 
       // MobZecForm
       // 
@@ -245,7 +274,7 @@
       this.Controls.Add(this._splitContainer);
       this.Controls.Add(this._topPanel);
       this.Name = "MobZecForm";
-      this.Text = "MobZec";
+      this.Text = "MOBZec";
       this.Load += new System.EventHandler(this.MobZecForm_Load);
       this._splitContainer.Panel1.ResumeLayout(false);
       this._splitContainer.Panel2.ResumeLayout(false);
@@ -254,7 +283,11 @@
       this._treeViewContextMenu.ResumeLayout(false);
       this._listViewContextMenu.ResumeLayout(false);
       this._topPanel.ResumeLayout(false);
+      this._topPanel.PerformLayout();
+      this._loadingPanel.ResumeLayout(false);
+      this._loadingPanel.PerformLayout();
       this._openPanel.ResumeLayout(false);
+      this._openPanel.PerformLayout();
       this.ResumeLayout(false);
 
     }
@@ -267,17 +300,19 @@
     private ColumnHeader _nameColumn;
     private ColumnHeader _explicitColumn;
     private Panel _topPanel;
-    private Button _openButton;
     private ColumnHeader _typeColumn;
     private ColumnHeader _rightsColumn;
     private Label _statusLabel;
-    private Button _cancelButton;
-    private Panel _openPanel;
-    private ComboBox _depthListBox;
     private ContextMenuStrip _treeViewContextMenu;
     private ToolStripMenuItem _showInExplorerMenuItem;
         private ContextMenuStrip _listViewContextMenu;
         private ToolStripMenuItem _showDirectMembersMenuItem;
         private ToolStripMenuItem _showAllMembersMenuItem;
+        private ToolStrip _openPanel;
+        private ToolStripButton _openButton;
+        private ToolStripComboBox _depthListBox;
+        private ToolStripDropDownButton _updateAvailableButton;
+        private ToolStrip _loadingPanel;
+        private ToolStripButton _cancelButton;
     }
 }

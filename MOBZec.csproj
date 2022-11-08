@@ -9,11 +9,11 @@
     <Title>MOBZystems Security Explorer</Title>
     <Description>MOBZystems Security Explorer</Description>
     <Company>MOBZystems</Company>
-    <Version>0.3.1</Version>
+    <Version>0.3.2</Version>
     <Copyright>(c) MOBZystems, 2022</Copyright>
     <ApplicationIcon>images\MobZec.ico</ApplicationIcon>
     <RootNamespace>MobZec</RootNamespace>
-    <ApplicationHighDpiMode>DpiUnawareGdiScaled</ApplicationHighDpiMode>
+    <ApplicationHighDpiMode>DpiUnaware</ApplicationHighDpiMode>
   </PropertyGroup>
 
   <ItemGroup>

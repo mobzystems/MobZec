@@ -1,6 +1,7 @@
 using MobZec.Properties;
 using System.Configuration;
 using System.Diagnostics;
+using System.Net.Http.Json;
 using System.Security.AccessControl;
 using System.Security.Principal;
 
@@ -9,6 +10,7 @@ namespace MobZec
   public partial class MobZecForm : Form
   {
     private const int UpdateMs = 200;
+    private const string ToolName = "MOBZec";
 
     private ImageList _imageList = new();
 
@@ -23,7 +25,7 @@ namespace MobZec
     private const string ICON_WARNING = nameof(Resources.flag_o_red);
     private const string ICON_ERROR = nameof(Resources.exclamation);
 
-    private string _titleBase = $"MOBZec Security Explorer v{Application.ProductVersion}";
+    private string _titleBase = $"{ToolName} Security Explorer v{Application.ProductVersion}";
 
     /// <summary>
     /// A (PowerShell) command to run on a rule using the context menu
@@ -58,8 +60,6 @@ namespace MobZec
 
       _treeView.ImageList = _imageList;
       _listView.SmallImageList = _imageList;
-      _openButton.ImageList = _imageList;
-      _openButton.ImageKey = ICON_FOLDER_OPEN;
 
       _depthListBox.SelectedIndex = 0;
 
@@ -125,6 +125,26 @@ namespace MobZec
         if (depth < _depthListBox.Items.Count)
           _depthListBox.SelectedIndex = depth;
       }
+
+      try
+      {
+        var client = new HttpClient();
+        var versionString = await client.GetFromJsonAsync<string>($"https://www.mobzystems.com/api/toolversion?t={ToolName}") ?? "";
+        if (versionString != "")
+        {
+          var version = new Version(versionString);
+          if (version > new Version(Application.ProductVersion))
+          {
+            _updateAvailableButton.Text = "Update available";
+            _updateAvailableButton.ToolTipText = $"{ToolName} {version.ToString(3)} is available";
+            _updateAvailableButton.Visible = true;
+          }
+        }
+      }
+      catch
+      {
+        // Ignore errors on update check
+      }
     }
 
     private async void RuleCommandItem_Click(object? sender, EventArgs e)
@@ -155,7 +175,7 @@ namespace MobZec
         _cancelled = false;
         _openPanel.Visible = false;
         _statusLabel.Text = $"Loading '{path}'...";
-        _cancelButton.Visible = true;
+        _loadingPanel.Visible = true;
 
         // Keep a (case insensitive!) tab on which directory was added to the tree where
         var nodeDict = new Dictionary<string, TreeNode>(StringComparer.OrdinalIgnoreCase);
@@ -234,7 +254,7 @@ namespace MobZec
         // Swap Open and Cancel again, disable Open while we're displaying
         _openPanel.Enabled = false;
         _openPanel.Visible = true;
-        _cancelButton.Visible = false;
+        _loadingPanel.Visible = false;
 
         if (a != null)
         {
@@ -575,6 +595,23 @@ namespace MobZec
     private async void _showAllMembersMenuItem_Click(object sender, EventArgs e)
     {
       await RunCommandOnRule("Get-AdGroupMember -Identity \"#ID#\" -Recursive | Select-Object SamAccountName, Name | Sort-Object SamAccountName, Name| Out-GrdiView -Title 'All members of group #NAME#'");
+    }
+
+    /// <summary>
+    /// Open the tool home page
+    /// </summary>
+    private void _updateAvailableButton_Click(object sender, EventArgs e)
+    {
+      try
+      {
+        var pi = new ProcessStartInfo($"https://www.mobzystems.com/Tools/{ToolName}");
+        pi.UseShellExecute = true;
+        Process.Start(pi);
+      }
+      catch (Exception ex)
+      {
+        MessageBox.Show(this, ex.Message, "Could not open web page", MessageBoxButtons.OK, MessageBoxIcon.Error);
+      }
     }
   }
 }

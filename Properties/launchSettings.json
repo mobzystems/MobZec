@@ -1,8 +1,7 @@
 {
   "profiles": {
     "MobZec": {
-      "commandName": "Project",
-      "commandLineArgs": "f:\\temp 2"
+      "commandName": "Project"
     }
   }
 }
