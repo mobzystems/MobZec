@@ -1,6 +1,6 @@
-﻿namespace MobZec
+﻿namespace MOBZec
 {
-  partial class MobZecForm
+  partial class MOBZecForm
   {
     /// <summary>
     ///  Required designer variable.
@@ -29,6 +29,7 @@
     private void InitializeComponent()
     {
       this.components = new System.ComponentModel.Container();
+      System.Windows.Forms.ColumnHeader _inheritanceColumn;
       this._splitContainer = new System.Windows.Forms.SplitContainer();
       this._treeView = new System.Windows.Forms.TreeView();
       this._treeViewContextMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -50,6 +51,7 @@
       this._openButton = new System.Windows.Forms.ToolStripButton();
       this._depthListBox = new System.Windows.Forms.ToolStripComboBox();
       this._updateAvailableButton = new System.Windows.Forms.ToolStripDropDownButton();
+      _inheritanceColumn = new System.Windows.Forms.ColumnHeader();
       ((System.ComponentModel.ISupportInitialize)(this._splitContainer)).BeginInit();
       this._splitContainer.Panel1.SuspendLayout();
       this._splitContainer.Panel2.SuspendLayout();
@@ -112,7 +114,8 @@
             this._explicitColumn,
             this._nameColumn,
             this._typeColumn,
-            this._rightsColumn});
+            this._rightsColumn,
+            _inheritanceColumn});
       this._listView.ContextMenuStrip = this._listViewContextMenu;
       this._listView.Dock = System.Windows.Forms.DockStyle.Fill;
       this._listView.FullRowSelect = true;
@@ -185,9 +188,9 @@
       this._topStatusStrip.Dock = System.Windows.Forms.DockStyle.Fill;
       this._topStatusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._statusLabel});
-      this._topStatusStrip.Location = new System.Drawing.Point(457, 0);
+      this._topStatusStrip.Location = new System.Drawing.Point(382, 0);
       this._topStatusStrip.Name = "_topStatusStrip";
-      this._topStatusStrip.Size = new System.Drawing.Size(343, 32);
+      this._topStatusStrip.Size = new System.Drawing.Size(418, 32);
       this._topStatusStrip.SizingGrip = false;
       this._topStatusStrip.TabIndex = 8;
       this._topStatusStrip.Text = "statusStrip1";
@@ -195,7 +198,7 @@
       // _statusLabel
       // 
       this._statusLabel.Name = "_statusLabel";
-      this._statusLabel.Size = new System.Drawing.Size(328, 27);
+      this._statusLabel.Size = new System.Drawing.Size(403, 27);
       this._statusLabel.Spring = true;
       this._statusLabel.Text = "...";
       this._statusLabel.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
@@ -208,7 +211,7 @@
       this._loadingPanel.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this._cancelButton});
       this._loadingPanel.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
-      this._loadingPanel.Location = new System.Drawing.Point(383, 0);
+      this._loadingPanel.Location = new System.Drawing.Point(308, 0);
       this._loadingPanel.Name = "_loadingPanel";
       this._loadingPanel.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
       this._loadingPanel.Size = new System.Drawing.Size(74, 32);
@@ -216,7 +219,7 @@
       // 
       // _cancelButton
       // 
-      this._cancelButton.Image = global::MobZec.Properties.Resources.cancel;
+      this._cancelButton.Image = global::MOBZec.Properties.Resources.cancel;
       this._cancelButton.ImageTransparentColor = System.Drawing.Color.Magenta;
       this._cancelButton.Name = "_cancelButton";
       this._cancelButton.Size = new System.Drawing.Size(71, 29);
@@ -237,13 +240,13 @@
       this._openPanel.Location = new System.Drawing.Point(5, 0);
       this._openPanel.Name = "_openPanel";
       this._openPanel.RenderMode = System.Windows.Forms.ToolStripRenderMode.System;
-      this._openPanel.Size = new System.Drawing.Size(378, 32);
+      this._openPanel.Size = new System.Drawing.Size(303, 32);
       this._openPanel.TabIndex = 6;
       this._openPanel.Text = "toolStrip1";
       // 
       // _openButton
       // 
-      this._openButton.Image = global::MobZec.Properties.Resources.folder_open_o;
+      this._openButton.Image = global::MOBZec.Properties.Resources.folder_open_o;
       this._openButton.ImageTransparentColor = System.Drawing.Color.Magenta;
       this._openButton.Name = "_openButton";
       this._openButton.Size = new System.Drawing.Size(98, 29);
@@ -264,7 +267,7 @@
       // 
       // _updateAvailableButton
       // 
-      this._updateAvailableButton.Image = global::MobZec.Properties.Resources.info_circle;
+      this._updateAvailableButton.Image = global::MOBZec.Properties.Resources.info_circle;
       this._updateAvailableButton.ImageTransparentColor = System.Drawing.Color.Magenta;
       this._updateAvailableButton.Name = "_updateAvailableButton";
       this._updateAvailableButton.ShowDropDownArrow = false;
@@ -272,6 +275,10 @@
       this._updateAvailableButton.Text = "...";
       this._updateAvailableButton.Visible = false;
       this._updateAvailableButton.Click += new System.EventHandler(this._updateAvailableButton_Click);
+      // 
+      // _inheritanceColumn
+      // 
+      _inheritanceColumn.Width = 150;
       // 
       // MobZecForm
       // 
@@ -313,15 +320,15 @@
     private ColumnHeader _rightsColumn;
     private ContextMenuStrip _treeViewContextMenu;
     private ToolStripMenuItem _showInExplorerMenuItem;
-        private ContextMenuStrip _listViewContextMenu;
-        private ToolStripMenuItem _showDirectMembersMenuItem;
-        private ToolStripMenuItem _showAllMembersMenuItem;
-        private ToolStrip _openPanel;
-        private ToolStripButton _openButton;
-        private ToolStripComboBox _depthListBox;
-        private ToolStripDropDownButton _updateAvailableButton;
-        private ToolStrip _loadingPanel;
-        private ToolStripButton _cancelButton;
+    private ContextMenuStrip _listViewContextMenu;
+    private ToolStripMenuItem _showDirectMembersMenuItem;
+    private ToolStripMenuItem _showAllMembersMenuItem;
+    private ToolStrip _openPanel;
+    private ToolStripButton _openButton;
+    private ToolStripComboBox _depthListBox;
+    private ToolStripDropDownButton _updateAvailableButton;
+    private ToolStrip _loadingPanel;
+    private ToolStripButton _cancelButton;
     private StatusStrip _topStatusStrip;
     private ToolStripStatusLabel _statusLabel;
   }

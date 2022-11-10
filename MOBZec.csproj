@@ -12,7 +12,7 @@
     <Version>0.3.2</Version>
     <Copyright>(c) MOBZystems, 2022</Copyright>
     <ApplicationIcon>images\MobZec.ico</ApplicationIcon>
-    <RootNamespace>MobZec</RootNamespace>
+    <RootNamespace>MOBZec</RootNamespace>
     <ApplicationHighDpiMode>DpiUnaware</ApplicationHighDpiMode>
   </PropertyGroup>
 

@@ -1,13 +1,13 @@
-using MobZec.Properties;
+using MOBZec.Properties;
 using System.Configuration;
 using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Security.AccessControl;
 using System.Security.Principal;
 
-namespace MobZec
+namespace MOBZec
 {
-  public partial class MobZecForm : Form
+  public partial class MOBZecForm : Form
   {
     private const int UpdateMs = 200;
     private const string ToolName = "MOBZec";
@@ -42,7 +42,7 @@ namespace MobZec
       }
     }
 
-    public MobZecForm()
+    public MOBZecForm()
     {
       InitializeComponent();
 
@@ -363,15 +363,14 @@ namespace MobZec
           foreach (FileSystemAccessRule rule in rules)
           {
             string account = GetSidName(rule.IdentityReference.Value);
-            var item = _listView.Items.Add(rule.IsInherited ? "No" : "Yes");
-            item.Tag = rule;
-            item.SubItems.Add(account);
-            item.SubItems.Add(rule.AccessControlType.ToString());
-            item.SubItems.Add(rule.FileSystemRights.ToString());
-            if (rule.IsInherited)
-              item.ImageKey = ICON_FILE;
-            else
-              item.ImageKey = ICON_WARNING;
+            var item = _listView.Items.Add(new ListViewItem(new[] {
+                rule.IsInherited ? "No" : "Yes",
+                account,
+                rule.AccessControlType.ToString(),
+                rule.FileSystemRights.ToString()
+              },
+              rule.IsInherited ? ICON_FILE : ICON_WARNING
+            ) { Tag = rule });
           }
         }
       }

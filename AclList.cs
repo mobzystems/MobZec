@@ -1,7 +1,7 @@
 ﻿using System.Security.AccessControl;
 using System.Security.Principal;
 
-namespace MobZec
+namespace MOBZec
 {
   /// <summary>
   /// Base class for security information for a file or directory
