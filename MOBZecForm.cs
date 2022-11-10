@@ -175,10 +175,12 @@ namespace MOBZec
 
       try
       {
-        // Hide the Open button, show the Cancel button
         _cancelled = false;
-        _openPanel.Visible = false;
+
         _statusLabel.Text = $"Loading '{path}'...";
+        
+        // Hide the Open button, show the Cancel button
+        _openPanel.Visible = false;
         _loadingPanel.Visible = true;
 
         // Keep a (case insensitive!) tab on which directory was added to the tree where
@@ -235,33 +237,17 @@ namespace MOBZec
           return _cancelled;
         };
 
-        // This is the result:
-        AclDirectory? a = null;
-
         try
         {
           // Block updates to the tree
           _treeView.BeginUpdate();
-          a = await Task.Run(() => AclDirectory.FromPath(path, depth, callback));
-        }
-        catch (Exception ex)
-        {
-          // We failed somehow - no result
-          MessageBox.Show(this, ex.Message, $"Error loading '{path}'", MessageBoxButtons.OK, MessageBoxIcon.Error);
-          a = null;
-        }
-        finally
-        {
-          _treeView.EndUpdate();
-        }
+          AclDirectory a = await Task.Run(() => AclDirectory.FromPath(path, depth, callback));
 
-        // Swap Open and Cancel again, disable Open while we're displaying
-        _openPanel.Enabled = false;
-        _openPanel.Visible = true;
-        _loadingPanel.Visible = false;
+          // Swap Open and Cancel again, disable Open while we're displaying
+          _openPanel.Enabled = false;
+          _openPanel.Visible = true;
+          _loadingPanel.Visible = false;
 
-        if (a != null)
-        {
           _statusLabel.Text = "Displaying results...";
           _topPanel.Update();
 
@@ -283,16 +269,24 @@ namespace MOBZec
           // Update the window title
           Text = $"{a.FullName} - {_titleBase}";
         }
-        else
+        catch (Exception ex)
         {
+          // We failed somehow - no result
+          MessageBox.Show(this, ex.Message, $"Error loading '{path}'", MessageBoxButtons.OK, MessageBoxIcon.Error);
           _statusLabel.Text = $"Failed to load '{path}'";
         }
-
-        // Re-enable Open button
-        _openPanel.Enabled = true;
+        finally
+        {
+          _treeView.EndUpdate();
+        }
       }
       finally
       {
+        // Re-enable Open button
+        _openPanel.Enabled = true;
+        // Show the open panel, hide the loading panel
+        _openPanel.Visible = true;
+        _loadingPanel.Visible = false;
         _splitContainer.Enabled = true;
         _splitContainer.UseWaitCursor = false;
       }
